@@ -1,5 +1,5 @@
 ---
-title: "Journal (reproducible report)"
+title: "REPORT OF DATA-SCIENCE CLASS"
 author: "Santiago Pulido Guerrero"
 date: "23-11-2020"
 output:
@@ -16,17 +16,99 @@ output:
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
 
-**IMPORTANT:** You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.
-
-This is an `.Rmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
-
-# My first post
+## CHAPTER 2: INTRO TO THE TIDYVERSE
+#CHALLENGE 1: ANALYSIS OF SALES BY PLACE AND YEAR
 
 Last compiled: `r Sys.Date()`
 
-Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
+1) Analysis of the sales by location and by year and location considering the 12 states of Germany and using bar plots.
 
-## Second level header
+```{r}
+# Data Science at TUHH ------------------------------------------------------
+# SALES ANALYSIS ----
+
+# 1.0 Load libraries ----
+library(ggplot2)
+library(tidyverse)
+library(readxl)
+library("writexl")
+
+# 2.0 Importing Files ----
+
+bikes_data <- read_excel(path = "D:/data-science/DS_Data-Science/00_data/01_bike_sales/01_raw_data/bikes.xlsx",sheet = NULL)
+bikeshops_data <- read_excel(path = "D:/data-science/DS_Data-Science/00_data/01_bike_sales/01_raw_data/bikeshops.xlsx",sheet = NULL)
+orderlines_data <- read_excel(path = "D:/data-science/DS_Data-Science/00_data/01_bike_sales/01_raw_data/orderlines.xlsx",sheet = NULL)
+
+# 3.0 Joining Data ----
+
+bikes_total_dataA = left_join(orderlines_data,bikes_data, by = c("product.id"="bike.id"))
+bikes_total_dataB = left_join(orderlines_data,bikeshops_data, by = c("customer.id"="bikeshop.id"))
+bike_orderlines_wrangled = left_join(bikes_total_dataA,bikes_total_dataB,by = NULL)
+
+# 5.0 Wrangling Data ----
+
+bike_orderlines_wrangled_tbl <- bike_orderlines_wrangled %>% separate(col = 'location',into = c("City","State"),sep = ",")%>% 
+mutate(total.price = price*quantity)%>%
+select(order.id, contains("order"),contains("model"),contains("location"),price, quantity, total.price,everything()) %>%
+rename(bikeshop = name) %>%  set_names(names(.) %>% str_replace_all("\\.", "_"))
+
+
+# 6.0 Business Insights ----
+
+# 6.1 States with the highest revenue ----
+
+# Step 1 - Manipulate
+
+sales_by_loc_tbl <- bike_orderlines_wrangled_tbl %>% separate(col = "order_date",into = c("order_year","order_month","order_day"),sep = "-") %>% 
+  group_by(State) %>%  summarize(total_sales = sum(total_price))%>%
+  mutate(sales_in_euros = scales::dollar(total_sales, big.mark = ".",decimal.mark = ",",prefix = "",suffix = "\u20ac"))
+
+sales_by_loc_year_tbl <- bike_orderlines_wrangled_tbl %>% separate(col = "order_date",into = c("order_year","order_month","order_day"),sep = "-") %>% 
+  group_by(order_year,State) %>%  summarize(total_sales = sum(total_price))%>%
+  mutate(sales_in_euros = scales::dollar(total_sales, big.mark = ".",decimal.mark = ",",prefix = "",suffix = "\u20ac"))
+  
+# Step 2 - Visualize
+
+sales_by_loc_tbl %>% ggplot(aes(x = State,y = total_sales))+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+geom_col(fill = "#2DC6D6") + geom_label(aes(label = sales_in_euros)) + geom_smooth(method = "lm", se = FALSE) +
+scale_y_continuous(labels = scales::dollar_format(big.mark = ".",decimal.mark = ",",prefix = "",suffix = "\u20ac")) +  
+labs(
+    title    = "Revenue by state",
+    subtitle = "Highest revenues",
+    x = "", # Override defaults for x and y
+    y = "Revenue in euros \u20ac"
+  )
+ggsave("sales_by_loc_tbl.png", height = 30, width = 35,units = "cm")
+
+# 6.2 Sales by Year and Category 2 ----
+
+# Step 2 - Visualize
+
+sales_by_loc_year_tbl %>% ggplot(aes(x = order_year,y = total_sales, fill = State))+ theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  geom_col() + facet_wrap(~ State) + scale_y_continuous(labels = scales::dollar_format(big.mark = ".",decimal.mark = ",",prefix = "",suffix = "\u20ac")) +  
+  labs(
+    title    = "Revenue by state",
+    subtitle = "Highest revenues",
+    fill = "Sales by states"
+  )
+ggsave("sales_by_loc_year_tbl.png", height = 35, width = 35,units = "cm")
+
+# 7.0 Writing Files ----
+
+#install.packages("writexl")
+library("writexl")
+# 7.1 XLSX ----
+sales_by_loc_tbl %>% write_xlsx("D:/data-science/DS_Data-Science/00_data/01_bike_sales/02_wrangled_data/sales_by_loc.xlsx")
+sales_by_loc_year_tbl %>% write_xlsx("D:/data-science/DS_Data-Science/00_data/01_bike_sales/02_wrangled_data/sales_by_loc_year.xlsx")
+# 7.2 CSV ----
+sales_by_loc_tbl %>% write_csv("D:/data-science/DS_Data-Science/00_data/01_bike_sales/02_wrangled_data/sales_by_loc.csv")
+sales_by_loc_year_tbl %>% write_csv("D:/data-science/DS_Data-Science/00_data/01_bike_sales/02_wrangled_data/sales_by_loc_year.csv")
+# 7.3 RDS ----
+sales_by_loc_tbl %>% write_rds("D:/data-science/DS_Data-Science/00_data/01_bike_sales/02_wrangled_data/sales_by_loc.rds")
+sales_by_loc_year_tbl %>% write_rds("D:/data-science/DS_Data-Science/00_data/01_bike_sales/02_wrangled_data/sales_by_loc_year.rds")
+```
+
+## CHALLENGE 2: 
 
 You can add more headers by adding more hashtags. These won't be put into the table of contents
 
