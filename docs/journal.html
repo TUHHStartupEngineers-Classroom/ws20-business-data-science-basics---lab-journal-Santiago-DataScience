@@ -452,24 +452,22 @@ n = 0;
 for (i in city_name){
 n = n + 1
 resp &lt;- GET(glue(&quot;https://api.openweathermap.org/data/2.5/weather?q={i}&amp;units=metric&amp;appid={Api_key}&quot;));
-x[n] = invisible(content(resp, as = &quot;text&quot;));
+x[n] &lt;- content(resp, as = &quot;text&quot;)
 
-}
-
-# 1.3 Print data from the Source
-
+}</code></pre>
+<pre class="r"><code># 1.3 Print data from the Source
 map(x,print);</code></pre>
-<pre><code>## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:10,\&quot;lat\&quot;:53.55},\&quot;weather\&quot;:[{\&quot;id\&quot;:800,\&quot;main\&quot;:\&quot;Clear\&quot;,\&quot;description\&quot;:\&quot;clear sky\&quot;,\&quot;icon\&quot;:\&quot;01d\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:6.3,\&quot;feels_like\&quot;:2.87,\&quot;temp_min\&quot;:6,\&quot;temp_max\&quot;:7,\&quot;pressure\&quot;:1016,\&quot;humidity\&quot;:87},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:3.1,\&quot;deg\&quot;:150},\&quot;clouds\&quot;:{\&quot;all\&quot;:0},\&quot;dt\&quot;:1606316282,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:1263,\&quot;country\&quot;:\&quot;DE\&quot;,\&quot;sunrise\&quot;:1606287862,\&quot;sunset\&quot;:1606317012},\&quot;timezone\&quot;:3600,\&quot;id\&quot;:2911298,\&quot;name\&quot;:\&quot;Hamburg\&quot;,\&quot;cod\&quot;:200}&quot;
-## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:139.69,\&quot;lat\&quot;:35.69},\&quot;weather\&quot;:[{\&quot;id\&quot;:802,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;scattered clouds\&quot;,\&quot;icon\&quot;:\&quot;03n\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:11.56,\&quot;feels_like\&quot;:10.19,\&quot;temp_min\&quot;:10.56,\&quot;temp_max\&quot;:13,\&quot;pressure\&quot;:1020,\&quot;humidity\&quot;:82},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:1.5,\&quot;deg\&quot;:60},\&quot;clouds\&quot;:{\&quot;all\&quot;:40},\&quot;dt\&quot;:1606316054,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:8074,\&quot;country\&quot;:\&quot;JP\&quot;,\&quot;sunrise\&quot;:1606253225,\&quot;sunset\&quot;:1606289385},\&quot;timezone\&quot;:32400,\&quot;id\&quot;:1850147,\&quot;name\&quot;:\&quot;Tokyo\&quot;,\&quot;cod\&quot;:200}&quot;
-## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:-74.08,\&quot;lat\&quot;:4.61},\&quot;weather\&quot;:[{\&quot;id\&quot;:803,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;broken clouds\&quot;,\&quot;icon\&quot;:\&quot;04d\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:16,\&quot;feels_like\&quot;:14.19,\&quot;temp_min\&quot;:16,\&quot;temp_max\&quot;:16,\&quot;pressure\&quot;:1028,\&quot;humidity\&quot;:67},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:2.6,\&quot;deg\&quot;:300},\&quot;clouds\&quot;:{\&quot;all\&quot;:75},\&quot;dt\&quot;:1606316170,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:8582,\&quot;country\&quot;:\&quot;CO\&quot;,\&quot;sunrise\&quot;:1606301230,\&quot;sunset\&quot;:1606344012},\&quot;timezone\&quot;:-18000,\&quot;id\&quot;:3688689,\&quot;name\&quot;:\&quot;Bogotá\&quot;,\&quot;cod\&quot;:200}&quot;</code></pre>
+<pre><code>## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:10,\&quot;lat\&quot;:53.55},\&quot;weather\&quot;:[{\&quot;id\&quot;:804,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;overcast clouds\&quot;,\&quot;icon\&quot;:\&quot;04n\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:3.39,\&quot;feels_like\&quot;:-0.39,\&quot;temp_min\&quot;:2.78,\&quot;temp_max\&quot;:5,\&quot;pressure\&quot;:1017,\&quot;humidity\&quot;:93},\&quot;visibility\&quot;:9000,\&quot;wind\&quot;:{\&quot;speed\&quot;:3.1,\&quot;deg\&quot;:150},\&quot;clouds\&quot;:{\&quot;all\&quot;:100},\&quot;dt\&quot;:1606330698,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:1263,\&quot;country\&quot;:\&quot;DE\&quot;,\&quot;sunrise\&quot;:1606287862,\&quot;sunset\&quot;:1606317012},\&quot;timezone\&quot;:3600,\&quot;id\&quot;:2911298,\&quot;name\&quot;:\&quot;Hamburg\&quot;,\&quot;cod\&quot;:200}&quot;
+## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:139.69,\&quot;lat\&quot;:35.69},\&quot;weather\&quot;:[{\&quot;id\&quot;:803,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;broken clouds\&quot;,\&quot;icon\&quot;:\&quot;04n\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:11.09,\&quot;feels_like\&quot;:9.32,\&quot;temp_min\&quot;:9.44,\&quot;temp_max\&quot;:12,\&quot;pressure\&quot;:1019,\&quot;humidity\&quot;:93},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:2.6,\&quot;deg\&quot;:330},\&quot;clouds\&quot;:{\&quot;all\&quot;:75},\&quot;dt\&quot;:1606330770,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:8074,\&quot;country\&quot;:\&quot;JP\&quot;,\&quot;sunrise\&quot;:1606339682,\&quot;sunset\&quot;:1606375765},\&quot;timezone\&quot;:32400,\&quot;id\&quot;:1850147,\&quot;name\&quot;:\&quot;Tokyo\&quot;,\&quot;cod\&quot;:200}&quot;
+## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:-74.08,\&quot;lat\&quot;:4.61},\&quot;weather\&quot;:[{\&quot;id\&quot;:803,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;broken clouds\&quot;,\&quot;icon\&quot;:\&quot;04d\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:18.23,\&quot;feels_like\&quot;:18.14,\&quot;temp_min\&quot;:18.23,\&quot;temp_max\&quot;:18.23,\&quot;pressure\&quot;:1009,\&quot;humidity\&quot;:65,\&quot;sea_level\&quot;:1009,\&quot;grnd_level\&quot;:751},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:0.82,\&quot;deg\&quot;:205},\&quot;clouds\&quot;:{\&quot;all\&quot;:75},\&quot;dt\&quot;:1606330770,\&quot;sys\&quot;:{\&quot;country\&quot;:\&quot;CO\&quot;,\&quot;sunrise\&quot;:1606301230,\&quot;sunset\&quot;:1606344012},\&quot;timezone\&quot;:-18000,\&quot;id\&quot;:3688689,\&quot;name\&quot;:\&quot;Bogotá\&quot;,\&quot;cod\&quot;:200}&quot;</code></pre>
 <pre><code>## [[1]]
-## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:10,\&quot;lat\&quot;:53.55},\&quot;weather\&quot;:[{\&quot;id\&quot;:800,\&quot;main\&quot;:\&quot;Clear\&quot;,\&quot;description\&quot;:\&quot;clear sky\&quot;,\&quot;icon\&quot;:\&quot;01d\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:6.3,\&quot;feels_like\&quot;:2.87,\&quot;temp_min\&quot;:6,\&quot;temp_max\&quot;:7,\&quot;pressure\&quot;:1016,\&quot;humidity\&quot;:87},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:3.1,\&quot;deg\&quot;:150},\&quot;clouds\&quot;:{\&quot;all\&quot;:0},\&quot;dt\&quot;:1606316282,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:1263,\&quot;country\&quot;:\&quot;DE\&quot;,\&quot;sunrise\&quot;:1606287862,\&quot;sunset\&quot;:1606317012},\&quot;timezone\&quot;:3600,\&quot;id\&quot;:2911298,\&quot;name\&quot;:\&quot;Hamburg\&quot;,\&quot;cod\&quot;:200}&quot;
+## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:10,\&quot;lat\&quot;:53.55},\&quot;weather\&quot;:[{\&quot;id\&quot;:804,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;overcast clouds\&quot;,\&quot;icon\&quot;:\&quot;04n\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:3.39,\&quot;feels_like\&quot;:-0.39,\&quot;temp_min\&quot;:2.78,\&quot;temp_max\&quot;:5,\&quot;pressure\&quot;:1017,\&quot;humidity\&quot;:93},\&quot;visibility\&quot;:9000,\&quot;wind\&quot;:{\&quot;speed\&quot;:3.1,\&quot;deg\&quot;:150},\&quot;clouds\&quot;:{\&quot;all\&quot;:100},\&quot;dt\&quot;:1606330698,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:1263,\&quot;country\&quot;:\&quot;DE\&quot;,\&quot;sunrise\&quot;:1606287862,\&quot;sunset\&quot;:1606317012},\&quot;timezone\&quot;:3600,\&quot;id\&quot;:2911298,\&quot;name\&quot;:\&quot;Hamburg\&quot;,\&quot;cod\&quot;:200}&quot;
 ## 
 ## [[2]]
-## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:139.69,\&quot;lat\&quot;:35.69},\&quot;weather\&quot;:[{\&quot;id\&quot;:802,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;scattered clouds\&quot;,\&quot;icon\&quot;:\&quot;03n\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:11.56,\&quot;feels_like\&quot;:10.19,\&quot;temp_min\&quot;:10.56,\&quot;temp_max\&quot;:13,\&quot;pressure\&quot;:1020,\&quot;humidity\&quot;:82},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:1.5,\&quot;deg\&quot;:60},\&quot;clouds\&quot;:{\&quot;all\&quot;:40},\&quot;dt\&quot;:1606316054,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:8074,\&quot;country\&quot;:\&quot;JP\&quot;,\&quot;sunrise\&quot;:1606253225,\&quot;sunset\&quot;:1606289385},\&quot;timezone\&quot;:32400,\&quot;id\&quot;:1850147,\&quot;name\&quot;:\&quot;Tokyo\&quot;,\&quot;cod\&quot;:200}&quot;
+## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:139.69,\&quot;lat\&quot;:35.69},\&quot;weather\&quot;:[{\&quot;id\&quot;:803,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;broken clouds\&quot;,\&quot;icon\&quot;:\&quot;04n\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:11.09,\&quot;feels_like\&quot;:9.32,\&quot;temp_min\&quot;:9.44,\&quot;temp_max\&quot;:12,\&quot;pressure\&quot;:1019,\&quot;humidity\&quot;:93},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:2.6,\&quot;deg\&quot;:330},\&quot;clouds\&quot;:{\&quot;all\&quot;:75},\&quot;dt\&quot;:1606330770,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:8074,\&quot;country\&quot;:\&quot;JP\&quot;,\&quot;sunrise\&quot;:1606339682,\&quot;sunset\&quot;:1606375765},\&quot;timezone\&quot;:32400,\&quot;id\&quot;:1850147,\&quot;name\&quot;:\&quot;Tokyo\&quot;,\&quot;cod\&quot;:200}&quot;
 ## 
 ## [[3]]
-## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:-74.08,\&quot;lat\&quot;:4.61},\&quot;weather\&quot;:[{\&quot;id\&quot;:803,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;broken clouds\&quot;,\&quot;icon\&quot;:\&quot;04d\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:16,\&quot;feels_like\&quot;:14.19,\&quot;temp_min\&quot;:16,\&quot;temp_max\&quot;:16,\&quot;pressure\&quot;:1028,\&quot;humidity\&quot;:67},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:2.6,\&quot;deg\&quot;:300},\&quot;clouds\&quot;:{\&quot;all\&quot;:75},\&quot;dt\&quot;:1606316170,\&quot;sys\&quot;:{\&quot;type\&quot;:1,\&quot;id\&quot;:8582,\&quot;country\&quot;:\&quot;CO\&quot;,\&quot;sunrise\&quot;:1606301230,\&quot;sunset\&quot;:1606344012},\&quot;timezone\&quot;:-18000,\&quot;id\&quot;:3688689,\&quot;name\&quot;:\&quot;Bogotá\&quot;,\&quot;cod\&quot;:200}&quot;</code></pre>
+## [1] &quot;{\&quot;coord\&quot;:{\&quot;lon\&quot;:-74.08,\&quot;lat\&quot;:4.61},\&quot;weather\&quot;:[{\&quot;id\&quot;:803,\&quot;main\&quot;:\&quot;Clouds\&quot;,\&quot;description\&quot;:\&quot;broken clouds\&quot;,\&quot;icon\&quot;:\&quot;04d\&quot;}],\&quot;base\&quot;:\&quot;stations\&quot;,\&quot;main\&quot;:{\&quot;temp\&quot;:18.23,\&quot;feels_like\&quot;:18.14,\&quot;temp_min\&quot;:18.23,\&quot;temp_max\&quot;:18.23,\&quot;pressure\&quot;:1009,\&quot;humidity\&quot;:65,\&quot;sea_level\&quot;:1009,\&quot;grnd_level\&quot;:751},\&quot;visibility\&quot;:10000,\&quot;wind\&quot;:{\&quot;speed\&quot;:0.82,\&quot;deg\&quot;:205},\&quot;clouds\&quot;:{\&quot;all\&quot;:75},\&quot;dt\&quot;:1606330770,\&quot;sys\&quot;:{\&quot;country\&quot;:\&quot;CO\&quot;,\&quot;sunrise\&quot;:1606301230,\&quot;sunset\&quot;:1606344012},\&quot;timezone\&quot;:-18000,\&quot;id\&quot;:3688689,\&quot;name\&quot;:\&quot;Bogotá\&quot;,\&quot;cod\&quot;:200}&quot;</code></pre>
 <pre class="r"><code># API Key protection
 
 alphavantage_api_url &lt;- &quot;https://www.alphavantage.co/query&quot;
@@ -477,24 +475,15 @@ ticker               &lt;- &quot;WDI.DE&quot;
 
 GET(alphavantage_api_url, query = list(&#39;function&#39; = &quot;GLOBAL_QUOTE&quot;,
                                        symbol     = ticker,
-                                       apikey     = Sys.getenv(&quot;token&quot;))
+                                       apikey     = Sys.getenv(&quot;MyPersonalToken&quot;))
 )</code></pre>
-<pre><code>## Response [https://www.alphavantage.co/query?function=GLOBAL_QUOTE&amp;symbol=WDI.DE&amp;apikey=Santiago]
-##   Date: 2020-11-25 15:04
+<pre><code>## Response [https://www.alphavantage.co/query?function=GLOBAL_QUOTE&amp;symbol=WDI.DE&amp;apikey=]
+##   Date: 2020-11-25 19:07
 ##   Status: 200
 ##   Content-Type: application/json
-##   Size: 378 B
+##   Size: 189 B
 ## {
-##     &quot;Global Quote&quot;: {
-##         &quot;01. symbol&quot;: &quot;WDI.DE&quot;,
-##         &quot;02. open&quot;: &quot;0.5601&quot;,
-##         &quot;03. high&quot;: &quot;0.5650&quot;,
-##         &quot;04. low&quot;: &quot;0.4918&quot;,
-##         &quot;05. price&quot;: &quot;0.5123&quot;,
-##         &quot;06. volume&quot;: &quot;3012222&quot;,
-##         &quot;07. latest trading day&quot;: &quot;2020-11-24&quot;,
-##         &quot;08. previous close&quot;: &quot;0.5656&quot;,
-## ...</code></pre>
+##     &quot;Error Message&quot;: &quot;the parameter apikey is invalid or missing. Please clai...</code></pre>
 </div>
 <div id="scraping-information" class="section level2">
 <h2>Scraping information</h2>
@@ -552,24 +541,15 @@ ticker               &lt;- &quot;WDI.DE&quot;
 
 GET(alphavantage_api_url, query = list(&#39;function&#39; = &quot;GLOBAL_QUOTE&quot;,
                                        symbol     = ticker,
-                                       apikey     = Sys.getenv(&quot;token&quot;))
+                                       apikey     = Sys.getenv(&quot;MyPersonalToken&quot;))
 )</code></pre>
-<pre><code>## Response [https://www.alphavantage.co/query?function=GLOBAL_QUOTE&amp;symbol=WDI.DE&amp;apikey=Santiago]
-##   Date: 2020-11-25 15:02
+<pre><code>## Response [https://www.alphavantage.co/query?function=GLOBAL_QUOTE&amp;symbol=WDI.DE&amp;apikey=]
+##   Date: 2020-11-25 19:07
 ##   Status: 200
 ##   Content-Type: application/json
-##   Size: 378 B
+##   Size: 189 B
 ## {
-##     &quot;Global Quote&quot;: {
-##         &quot;01. symbol&quot;: &quot;WDI.DE&quot;,
-##         &quot;02. open&quot;: &quot;0.5601&quot;,
-##         &quot;03. high&quot;: &quot;0.5650&quot;,
-##         &quot;04. low&quot;: &quot;0.4918&quot;,
-##         &quot;05. price&quot;: &quot;0.5123&quot;,
-##         &quot;06. volume&quot;: &quot;3012222&quot;,
-##         &quot;07. latest trading day&quot;: &quot;2020-11-24&quot;,
-##         &quot;08. previous close&quot;: &quot;0.5656&quot;,
-## ...</code></pre>
+##     &quot;Error Message&quot;: &quot;the parameter apikey is invalid or missing. Please clai...</code></pre>
 <div id="third-level-header" class="section level3">
 <h3>third level header</h3>
 <p>Here’s an even lower level header</p>
@@ -587,7 +567,7 @@ GET(alphavantage_api_url, query = list(&#39;function&#39; = &quot;GLOBAL_QUOTE&q
 <p>So, let’s say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:</p>
 <pre class="r"><code>samples &lt;- rnorm(100, mean=0, sd=1)
 hist(samples)</code></pre>
-<p><img src="journal_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="journal_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
 </div>
 
