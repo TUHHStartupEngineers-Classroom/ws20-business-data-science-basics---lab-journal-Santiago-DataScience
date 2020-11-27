@@ -334,7 +334,7 @@ $(document).ready(function () {
 <div id="chapter-2-intro-to-the-tidyverse" class="section level2">
 <h2>CHAPTER 2: INTRO TO THE TIDYVERSE</h2>
 <p>#CHALLENGE 1: ANALYSIS OF SALES BY PLACE AND YEAR</p>
-<p>Last compiled: 2020-11-25</p>
+<p>Last compiled: 2020-11-27</p>
 <ol style="list-style-type: decimal">
 <li>Analysis of the sales by location and by year and location considering the 12 states of Germany and using bar plots.</li>
 </ol>
@@ -550,15 +550,107 @@ GET(alphavantage_api_url, query = list(&#39;function&#39; = &quot;GLOBAL_QUOTE&q
 ##   Size: 189 B
 ## {
 ##     &quot;Error Message&quot;: &quot;the parameter apikey is invalid or missing. Please clai...</code></pre>
-<div id="third-level-header" class="section level3">
-<h3>third level header</h3>
-<p>Here’s an even lower level header</p>
 </div>
 </div>
-</div>
-<div id="my-second-post-note-the-order" class="section level1">
-<h1>My second post (note the order)</h1>
-<p>Last compiled: 2020-11-25</p>
+<div id="challenge-3" class="section level1">
+<h1>CHALLENGE 3</h1>
+<p>The top ten companies with the most patents</p>
+<pre class="r"><code># 1.0 libraries
+library(vroom)
+library(readxl)
+library(&quot;writexl&quot;)
+library(tidyr)
+library(purrr)
+library(&quot;stringr&quot;) 
+library(dplyr)
+library(data.table)
+# Tidyverse
+library(tidyverse)
+
+# 2.0 import data
+
+col_assignee &lt;- list(
+  id = col_character(),
+  type = col_character(),
+  name_first = col_character(),
+  name_last = col_character(),
+  organization = col_character()
+)
+
+col_patent_assignee &lt;- list(
+  patent_id = col_character(),
+  assignee_id = col_character(),
+  location_id = col_character()
+  
+)
+
+assignee_tbl &lt;- vroom(
+  
+  file = &quot;assignee.tsv&quot;,
+  delim      = &quot;\t&quot;, 
+  col_types  = list(name_first = col_skip(),name_last = col_skip()),
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+  
+)
+
+patent_assignee_tbl &lt;- vroom(
+  
+  file = &quot;patent_assignee.tsv&quot;,
+  delim      = &quot;\t&quot;, 
+  col_types  =  col_patent_assignee,
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+  
+)
+
+class(assignee_tbl)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>setDT(assignee_tbl)
+
+class(patent_assignee_tbl)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>setDT(patent_assignee_tbl)
+
+# 3.0 Data Wranggling
+
+patent_assignee_tbl &lt;- patent_assignee_tbl %&gt;% select(patent_id, assignee_id, location_id) %&gt;% rename(pat_id = patent_id,
+                                                                                                      id = assignee_id,
+                                                                                                      Loc_id = location_id) 
+
+complete_patent_tbl &lt;- merge(x = patent_assignee_tbl, y = assignee_tbl, by = &quot;id&quot;,all.x = TRUE, all.y = TRUE)
+
+
+# filtering
+
+# Categories
+
+# 2 US Company or Corporation
+# 4 US individual
+# 6 US Federal government
+# 8 US County Government
+# 9 US State Government
+
+filtered_data &lt;- complete_patent_tbl %&gt;% select(type,organization) %&gt;% filter((type %% 2 == 0)|(type == 9))
+
+unique_values &lt;- filtered_data %&gt;% distinct(organization) %&gt;% view()
+
+num_patents_by_co &lt;- filtered_data %&gt;% group_by(organization) %&gt;% count() %&gt;% arrange(desc(n)) %&gt;% view()
+
+num_patents_by_co %&gt;% head(n=10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+## # Groups:   organization [10]
+##    organization                                     n
+##    &lt;chr&gt;                                        &lt;int&gt;
+##  1 International Business Machines Corporation 139092
+##  2 &lt;NA&gt;                                         72951
+##  3 General Electric Company                     47122
+##  4 Intel Corporation                            42157
+##  5 Hewlett-Packard Development Company, L.P.    35573
+##  6 Microsoft Corporation                        30086
+##  7 Micron Technology, Inc.                      28001
+##  8 QUALCOMM Incorporated                        24703
+##  9 Texas Instruments Incorporated               24182
+## 10 Xerox Corporation                            23174</code></pre>
+<p>Last compiled: 2020-11-27</p>
 <p>I’m writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom</p>
 </div>
 <div id="adding-r-stuff" class="section level1">
@@ -567,7 +659,7 @@ GET(alphavantage_api_url, query = list(&#39;function&#39; = &quot;GLOBAL_QUOTE&q
 <p>So, let’s say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:</p>
 <pre class="r"><code>samples &lt;- rnorm(100, mean=0, sd=1)
 hist(samples)</code></pre>
-<p><img src="journal_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="journal_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
 </div>
 

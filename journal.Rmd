@@ -211,11 +211,99 @@ GET(alphavantage_api_url, query = list('function' = "GLOBAL_QUOTE",
 )
 
 ```
-### third level header
+# CHALLENGE 3
 
-Here's an even lower level header
+The top ten companies with the most patents
 
-# My second post (note the order)
+```{r}
+
+# 1.0 libraries
+library(vroom)
+library(readxl)
+library("writexl")
+library(tidyr)
+library(purrr)
+library("stringr") 
+library(dplyr)
+library(data.table)
+# Tidyverse
+library(tidyverse)
+
+# 2.0 import data
+
+col_assignee <- list(
+  id = col_character(),
+  type = col_character(),
+  name_first = col_character(),
+  name_last = col_character(),
+  organization = col_character()
+)
+
+col_patent_assignee <- list(
+  patent_id = col_character(),
+  assignee_id = col_character(),
+  location_id = col_character()
+  
+)
+
+assignee_tbl <- vroom(
+  
+  file = "assignee.tsv",
+  delim      = "\t", 
+  col_types  = list(name_first = col_skip(),name_last = col_skip()),
+  na         = c("", "NA", "NULL")
+  
+)
+
+patent_assignee_tbl <- vroom(
+  
+  file = "patent_assignee.tsv",
+  delim      = "\t", 
+  col_types  =  col_patent_assignee,
+  na         = c("", "NA", "NULL")
+  
+)
+
+class(assignee_tbl)
+
+setDT(assignee_tbl)
+
+class(patent_assignee_tbl)
+
+setDT(patent_assignee_tbl)
+
+# 3.0 Data Wranggling
+
+patent_assignee_tbl <- patent_assignee_tbl %>% select(patent_id, assignee_id, location_id) %>% rename(pat_id = patent_id,
+                                                                                                      id = assignee_id,
+                                                                                                      Loc_id = location_id) 
+
+complete_patent_tbl <- merge(x = patent_assignee_tbl, y = assignee_tbl, by = "id",all.x = TRUE, all.y = TRUE)
+
+
+# filtering
+
+# Categories
+
+# 2 US Company or Corporation
+# 4 US individual
+# 6 US Federal government
+# 8 US County Government
+# 9 US State Government
+
+filtered_data <- complete_patent_tbl %>% select(type,organization) %>% filter((type %% 2 == 0)|(type == 9))
+
+unique_values <- filtered_data %>% distinct(organization) %>% view()
+
+num_patents_by_co <- filtered_data %>% group_by(organization) %>% count() %>% arrange(desc(n)) %>% view()
+
+num_patents_by_co %>% head(n=10)
+
+
+
+```
+
+
 
 Last compiled: `r Sys.Date()`
 
