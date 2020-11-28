@@ -213,6 +213,8 @@ GET(alphavantage_api_url, query = list('function' = "GLOBAL_QUOTE",
 ```
 # CHALLENGE 3
 
+## Part 1
+
 The top ten companies with the most patents
 
 ```{r}
@@ -303,7 +305,190 @@ num_patents_by_co %>% head(n=10)
 
 ```
 
+## Part 2
 
+```{r}
+library(vroom)
+col_types <- list(
+  id = col_character(),
+  type = col_character(),
+  number = col_character(),
+  country = col_character(),
+  date = col_date("%Y-%m-%d"),
+  abstract = col_character(),
+  title = col_character(),
+  kind = col_character(),
+  num_claims = col_double(),
+  filename = col_character(),
+  withdrawn = col_double()
+)
+
+patent_tbl <- vroom(
+  file       = "patent.tsv", 
+  delim      = "\t", 
+  col_types  = list(id = col_skip(),type = col_skip(),abstract = col_skip(),withdrawn = col_skip()),
+  na         = c("", "NA", "NULL")
+)
+
+patent_assignee_tbl <- complete_patent_tbl %>% select(id,pat_id,Loc_id,type,organization)%>% rename(id = id,
+                                                                                                    number = pat_id,
+                                                                                                    loc_id = Loc_id,
+                                                                                                    type = type,
+                                                                                                    org = organization)
+
+merged_patent_tbl <- merge(x = patent_tbl, y = patent_assignee_tbl, by = "number",all.x = TRUE, all.y = TRUE)
+
+
+filtered_patent_tbl <- merged_patent_tbl %>% select(number,country,date,type,org) %>% filter((type %% 2 == 0)|(type == 9))
+
+filtered_patent_tbl <- filtered_patent_tbl %>% select(number,country,date,type,org)  %>% filter(!is.na(date)) 
+
+ru_patent_tbl <- filtered_patent_tbl %>% select(number,country,date,org) %>% separate(col = date,
+                                                                   into = c("year","month","day"),
+                                                                   sep = '-',remove = FALSE)
+ru_patent_tbl <- ru_patent_tbl %>% select(-date)
+
+ru_patent_tbl <- ru_patent_tbl %>% select(number,country,year,org) %>% filter(year == 2019)
+
+patents_by_company_in_2019 <- ru_patent_tbl %>% group_by(org,year) %>% count() %>% arrange(desc(n)) 
+
+patents_by_company_in_2019 %>% head(n=10)
+
+
+```
+
+## Part 3
+
+```{r}
+
+# 1.0 libraries
+library(vroom)
+library(readxl)
+library("writexl")
+library(tidyr)
+library(purrr)
+library("stringr") 
+library(dplyr)
+library(data.table)
+# Tidyverse
+library(tidyverse)
+
+# 2.0 import data
+
+col_assignee <- list(
+  id = col_character(),
+  type = col_character(),
+  name_first = col_character(),
+  name_last = col_character(),
+  organization = col_character()
+)
+
+col_patent_assignee <- list(
+  patent_id = col_character(),
+  assignee_id = col_character(),
+  location_id = col_character()
+  
+)
+
+uspc_tbl <- list(
+  uuid = col_character(),
+  pat_id = col_character(),
+  mainclass_id = col_character(),
+  subclass_id = col_character(),
+  sequence = col_character()
+)
+
+# Challenge 3.3
+
+assignee_tbl <- vroom(
+  
+  file = "assignee.tsv",
+  delim      = "\t", 
+  col_types  = list(name_first = col_skip(),name_last = col_skip()),
+  na         = c("", "NA", "NULL")
+  
+)
+
+patent_assignee_tbl <- vroom(
+  
+  file = "patent_assignee.tsv",
+  delim      = "\t", 
+  col_types  =  col_patent_assignee,
+  na         = c("", "NA", "NULL")
+  
+)
+
+
+
+uspc_tbl <- vroom(
+  
+  file = "uspc.tsv",
+  delim      = "\t", 
+  col_types  =  list(uuid = col_skip(), subclass_id = col_skip()),
+  na         = c("", "NA", "NULL")
+  
+)
+
+
+class(uspc_tbl)
+
+setDT(uspc_tbl)
+
+class(assignee_tbl)
+
+setDT(assignee_tbl)
+
+class(patent_assignee_tbl)
+
+setDT(patent_assignee_tbl)
+
+# 3.0 Data Wranggling
+
+patent_assignee_tbl <- patent_assignee_tbl %>% select(patent_id, assignee_id, location_id) %>% rename(pat_id = patent_id,
+                                                                                                      id = assignee_id,
+                                                                                                      Loc_id = location_id) 
+
+complete_patent_tbl <- merge(x = patent_assignee_tbl, y = assignee_tbl, by = "id",all.x = TRUE, all.y = TRUE)
+
+
+complete_patent_tbl <- complete_patent_tbl %>% select(id,pat_id,Loc_id,type,organization) %>% filter(!is.na(pat_id)) %>% arrange(desc(pat_id))
+
+uspc_tbl <- uspc_tbl %>% select(patent_id,mainclass_id,sequence) %>% rename(pat_id = patent_id,
+                                                                            mclass = mainclass_id,
+                                                                            sqc = sequence)
+ 
+complete_patent_tbl <- merge(x = complete_patent_tbl, y = uspc_tbl, by = "pat_id",all.x = TRUE, all.y = TRUE) %>% filter(!is.na(mclass))
+
+complete_patent_tbl <- complete_patent_tbl %>% filter(!is.na(organization))
+
+filtered_patent_tbl <- complete_patent_tbl %>% group_by(pat_id,organization,mclass) %>% count() %>% arrange(desc(n))
+
+top_10_companies <- filtered_patent_tbl %>% group_by(pat_id,organization) %>% count() %>% arrange(desc(n))
+
+top_10_org <- top_10_companies %>%  group_by(organization) %>% count() %>% arrange(desc(n)) %>% head(n=10)
+ 
+top_uspto <- merge(x = top_10_org, y = filtered_patent_tbl, by = "organization",all.x = TRUE, all.y = TRUE)
+
+top_5_uspto <- top_uspto %>% select(organization, n.x, pat_id, mclass) %>% filter(!is.na(n.x)) %>% arrange(desc(mclass))
+
+top_5_uspto <- top_5_uspto %>% group_by(mclass) %>% count() %>% arrange(desc(n))
+
+top_5_uspto %>% head(n = 5) %>% glimpse() 
+
+# filtering 
+
+#Step 1:
+#       a) Trew away the na.rows of organization and mclass at the frist two command lines
+#       b) Counted the number of times a patent was assigned to an organization, considering the mainclass
+#       c) Counted the number of times an organization was awarded a patent
+#       d) Extracted the top ten companies with most patents in top_10_org
+#       e) Filtered (using merge) the top ten companies in the filtered_patent_tbl to get the the mainclass of the top tehn companies
+#       f) Finally, count the number of times mainclasses appears from the top ten companies
+#       h) Got the top five USPTO tech mainclasses
+
+
+
+```
 
 Last compiled: `r Sys.Date()`
 

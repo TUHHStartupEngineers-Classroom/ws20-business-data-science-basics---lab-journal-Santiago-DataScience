@@ -39,3 +39,4 @@ vignettes/*.pdf
 patent_assignee.tsv
 patent.tsv
 assignee.tsv
+uspc.tsv
