@@ -307,55 +307,7 @@ num_patents_by_co %>% head(n=10)
 
 ## Part 2
 
-```{r}
-library(vroom)
-col_types <- list(
-  id = col_character(),
-  type = col_character(),
-  number = col_character(),
-  country = col_character(),
-  date = col_date("%Y-%m-%d"),
-  abstract = col_character(),
-  title = col_character(),
-  kind = col_character(),
-  num_claims = col_double(),
-  filename = col_character(),
-  withdrawn = col_double()
-)
 
-patent_tbl <- vroom(
-  file       = "patent.tsv", 
-  delim      = "\t", 
-  col_types  = list(id = col_skip(),type = col_skip(),abstract = col_skip(),withdrawn = col_skip()),
-  na         = c("", "NA", "NULL")
-)
-
-patent_assignee_tbl <- complete_patent_tbl %>% select(id,pat_id,Loc_id,type,organization)%>% rename(id = id,
-                                                                                                    number = pat_id,
-                                                                                                    loc_id = Loc_id,
-                                                                                                    type = type,
-                                                                                                    org = organization)
-
-merged_patent_tbl <- merge(x = patent_tbl, y = patent_assignee_tbl, by = "number",all.x = TRUE, all.y = TRUE)
-
-
-filtered_patent_tbl <- merged_patent_tbl %>% select(number,country,date,type,org) %>% filter((type %% 2 == 0)|(type == 9))
-
-filtered_patent_tbl <- filtered_patent_tbl %>% select(number,country,date,type,org)  %>% filter(!is.na(date)) 
-
-ru_patent_tbl <- filtered_patent_tbl %>% select(number,country,date,org) %>% separate(col = date,
-                                                                   into = c("year","month","day"),
-                                                                   sep = '-',remove = FALSE)
-ru_patent_tbl <- ru_patent_tbl %>% select(-date)
-
-ru_patent_tbl <- ru_patent_tbl %>% select(number,country,year,org) %>% filter(year == 2019)
-
-patents_by_company_in_2019 <- ru_patent_tbl %>% group_by(org,year) %>% count() %>% arrange(desc(n)) 
-
-patents_by_company_in_2019 %>% head(n=10)
-
-
-```
 
 ## Part 3
 
