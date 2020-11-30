@@ -447,10 +447,15 @@ top_5_uspto
 ```{r}
 # Challenge 1
 
+# Challenge 1
+
 # 1.0 Libraries
+library(maps)
+library(dplyr)
 library(tidyverse)
 library(lubridate)
 library(readxl)
+library(ggplot2)
 
 # 2.0 Data acquisition
 
@@ -458,7 +463,7 @@ covid_data_tbl <- read_csv("https://opendata.ecdc.europa.eu/covid19/casedistribu
 
 # 3.0 Data manipulation
 
-cases_in_2020 <- covid_data_tbl %>% select(dateRep,year,month,cases,countriesAndTerritories,continentExp) %>% 
+cases_in_2020 <- covid_data_tbl %>% select(dateRep,year,month,cases,deaths,countriesAndTerritories,continentExp,popData2019) %>% 
   mutate(across(countriesAndTerritories, str_replace_all, "_", " ")) %>%
   mutate(countriesAndTerritories = case_when(
     
@@ -490,7 +495,39 @@ cases_by_month_2020 %>% ggplot(aes(x = dateRep,y = cumulative_cases,size = total
     color = "Countries"
     
   ) 
+
+map_cases_2020 <- cases_in_2020 %>% select(dateRep,month,year,cases,countriesAndTerritories,everything()) %>%
+  mutate(dateRep = dmy(dateRep)) %>% filter(year %in% "2020") %>% arrange((dateRep))
+
+map_cases_2020 <- map_cases_2020 %>% select(everything()) %>% rename(
+  
+  date = dateRep,
+  month = month,
+  year = year,
+  cases = cases,
+  region = countriesAndTerritories,
+  continents = continentExp,
+  population = popData2019
+) 
+
+map_cases_2020 <- map_cases_2020 %>% select(everything()) %>% group_by(year,region,population) %>% summarize(mortality = sum(deaths)) %>% ungroup()
+
+world <- map_data("world")
+
+covid_map_data_2020 <- merge(map_cases_2020,world, by = "region")
+
+covid_map_data_2020 <- covid_map_data_2020 %>% mutate(rate_mortality = mortality/population)
+
+covid_map_data_2020 %>% ggplot(aes(long, lat, group = group)) + 
+  geom_map(aes(map_id = region,fill = rate_mortality),map = world) +
+  scale_fill_viridis_c(option = "C") +
+  labs(
+    title = "Confirmed COVID-19 deaths relative to the size of the population",
+    subtitle = "Last update: 30-11-2020",
+    caption = "Data taken from: https://opendata.ecdc.europa.eu/covid19/casedistribution/csv",
+    x = "Longitude",
+    y = "Latitude",
+    color = "Countries"
+) + theme_test()
   
 ```
-
-When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You'll learn that all of these things and more can be customized in each R code block.
