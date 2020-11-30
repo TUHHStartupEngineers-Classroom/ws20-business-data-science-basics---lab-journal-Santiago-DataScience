@@ -788,18 +788,60 @@ top_5_uspto </code></pre>
 ## 3    358 17228
 ## 4    348 16300
 ## 5    709 16058</code></pre>
-<p>Last compiled: 2020-11-30</p>
-<p>I’m writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom</p>
 </div>
-</div>
-<div id="adding-r-stuff" class="section level1">
-<h1>Adding R stuff</h1>
-<p>So far this is just a blog where you can write in plain text and serve your writing to a webpage. One of the main purposes of this lab journal is to record your progress learning R. The reason I am asking you to use this process is because you can both make a website, and a lab journal, and learn R all in R-studio. This makes everything really convenient and in the same place.</p>
-<p>So, let’s say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:</p>
-<pre class="r"><code>samples &lt;- rnorm(100, mean=0, sd=1)
-hist(samples)</code></pre>
+<div id="challenge-4" class="section level2">
+<h2>Challenge 4</h2>
+<div id="covid-confirmed-cases" class="section level3">
+<h3>COVID confirmed cases</h3>
+<pre class="r"><code># Challenge 1
+
+# 1.0 Libraries
+library(tidyverse)
+library(lubridate)
+library(readxl)
+
+# 2.0 Data acquisition
+
+covid_data_tbl &lt;- read_csv(&quot;https://opendata.ecdc.europa.eu/covid19/casedistribution/csv&quot;)
+
+# 3.0 Data manipulation
+
+cases_in_2020 &lt;- covid_data_tbl %&gt;% select(dateRep,year,month,cases,countriesAndTerritories,continentExp) %&gt;% 
+  mutate(across(countriesAndTerritories, str_replace_all, &quot;_&quot;, &quot; &quot;)) %&gt;%
+  mutate(countriesAndTerritories = case_when(
+    
+    countriesAndTerritories == &quot;United Kingdom&quot; ~ &quot;UK&quot;,
+    countriesAndTerritories == &quot;United States of America&quot; ~ &quot;USA&quot;,
+    countriesAndTerritories == &quot;Czechia&quot; ~ &quot;Czech Republic&quot;,
+    TRUE ~ countriesAndTerritories
+    
+  ))
+
+cases_by_dmonth_2020 &lt;- cases_in_2020 %&gt;% select(dateRep,month,year,cases,countriesAndTerritories) %&gt;%
+  mutate(dateRep = dmy(dateRep)) %&gt;% filter(year %in% &quot;2020&quot; &amp; countriesAndTerritories %in% c(&quot;Germany&quot;,&quot;France&quot;,&quot;UK&quot;,&quot;Spain&quot;,&quot;USA&quot;)) %&gt;%
+  arrange((dateRep))
+
+cases_by_month_2020 &lt;- cases_by_dmonth_2020 %&gt;% group_by(countriesAndTerritories) %&gt;%
+  mutate(cumulative_cases = cumsum(cases)) %&gt;% ungroup()
+  
+cases_by_month_2020 %&gt;% ggplot(aes(x = dateRep,y = cumulative_cases,size = total_cases)) + 
+  geom_line(aes(color = countriesAndTerritories), size = 1.0) +
+  scale_x_date(breaks = &quot;1 month&quot;, date_labels = &quot;%B&quot;) + 
+  scale_y_continuous(labels = scales::number_format(scale = 1/1e6, big.mark = &quot;.&quot;, decimal.mark = &quot;,&quot;, suffix = &quot;M&quot;))+
+  theme_test()+theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(
+    title = &quot;COVID-19 confirmed cases worldwide&quot;,
+    subtitle = &quot;Last update: 30-11-2020&quot;,
+    caption = &quot;Data taken from: https://opendata.ecdc.europa.eu/covid19/casedistribution/csv&quot;,
+    x = &quot;Months&quot;,
+    y = &quot;Cumulative cases&quot;,
+    color = &quot;Countries&quot;
+    
+  ) </code></pre>
 <p><img src="journal_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
+</div>
+</div>
 </div>
 
 

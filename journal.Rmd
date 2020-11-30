@@ -440,21 +440,57 @@ top_5_uspto
 
 ```
 
+## Challenge 4 
+### COVID confirmed cases
 
-
-Last compiled: `r Sys.Date()`
-
-I'm writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom
-
-# Adding R stuff
-
-So far this is just a blog where you can write in plain text and serve your writing to a webpage. One of the main purposes of this lab journal is to record your progress learning R. The reason I am asking you to use this process is because you can both make a website, and a lab journal, and learn R all in R-studio. This makes everything really convenient and in the same place. 
-
-So, let's say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:
 
 ```{r}
-samples <- rnorm(100, mean=0, sd=1)
-hist(samples)
+# Challenge 1
+
+# 1.0 Libraries
+library(tidyverse)
+library(lubridate)
+library(readxl)
+
+# 2.0 Data acquisition
+
+covid_data_tbl <- read_csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+
+# 3.0 Data manipulation
+
+cases_in_2020 <- covid_data_tbl %>% select(dateRep,year,month,cases,countriesAndTerritories,continentExp) %>% 
+  mutate(across(countriesAndTerritories, str_replace_all, "_", " ")) %>%
+  mutate(countriesAndTerritories = case_when(
+    
+    countriesAndTerritories == "United Kingdom" ~ "UK",
+    countriesAndTerritories == "United States of America" ~ "USA",
+    countriesAndTerritories == "Czechia" ~ "Czech Republic",
+    TRUE ~ countriesAndTerritories
+    
+  ))
+
+cases_by_dmonth_2020 <- cases_in_2020 %>% select(dateRep,month,year,cases,countriesAndTerritories) %>%
+  mutate(dateRep = dmy(dateRep)) %>% filter(year %in% "2020" & countriesAndTerritories %in% c("Germany","France","UK","Spain","USA")) %>%
+  arrange((dateRep))
+
+cases_by_month_2020 <- cases_by_dmonth_2020 %>% group_by(countriesAndTerritories) %>%
+  mutate(cumulative_cases = cumsum(cases)) %>% ungroup()
+  
+cases_by_month_2020 %>% ggplot(aes(x = dateRep,y = cumulative_cases,size = total_cases)) + 
+  geom_line(aes(color = countriesAndTerritories), size = 1.0) +
+  scale_x_date(breaks = "1 month", date_labels = "%B") + 
+  scale_y_continuous(labels = scales::number_format(scale = 1/1e6, big.mark = ".", decimal.mark = ",", suffix = "M"))+
+  theme_test()+theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(
+    title = "COVID-19 confirmed cases worldwide",
+    subtitle = "Last update: 30-11-2020",
+    caption = "Data taken from: https://opendata.ecdc.europa.eu/covid19/casedistribution/csv",
+    x = "Months",
+    y = "Cumulative cases",
+    color = "Countries"
+    
+  ) 
+  
 ```
 
 When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You'll learn that all of these things and more can be customized in each R code block.
