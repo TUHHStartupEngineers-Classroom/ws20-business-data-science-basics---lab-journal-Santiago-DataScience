@@ -334,7 +334,7 @@ $(document).ready(function () {
 <div id="chapter-2-intro-to-the-tidyverse" class="section level2">
 <h2>CHAPTER 2: INTRO TO THE TIDYVERSE</h2>
 <p>#CHALLENGE 1: ANALYSIS OF SALES BY PLACE AND YEAR</p>
-<p>Last compiled: 2020-11-28</p>
+<p>Last compiled: 2020-11-30</p>
 <ol style="list-style-type: decimal">
 <li>Analysis of the sales by location and by year and location considering the 12 states of Germany and using bar plots.</li>
 </ol>
@@ -586,6 +586,36 @@ col_patent_assignee &lt;- list(
   
 )
 
+library(vroom)
+col_types &lt;- list(
+  id = col_character(),
+  type = col_character(),
+  number = col_character(),
+  country = col_character(),
+  date = col_date(&quot;%Y-%m-%d&quot;),
+  abstract = col_character(),
+  title = col_character(),
+  kind = col_character(),
+  num_claims = col_double(),
+  filename = col_character(),
+  withdrawn = col_double()
+)
+
+uspc_tbl &lt;- list(
+  uuid = col_character(),
+  pat_id = col_character(),
+  mainclass_id = col_character(),
+  subclass_id = col_character(),
+  sequence = col_character()
+)
+
+patent_tbl &lt;- vroom(
+  file       = &quot;patent.tsv&quot;, 
+  delim      = &quot;\t&quot;, 
+  col_types  = list(id = col_skip(),type = col_skip(),abstract = col_skip(),withdrawn = col_skip()),
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+)
+
 assignee_tbl &lt;- vroom(
   
   file = &quot;assignee.tsv&quot;,
@@ -604,15 +634,35 @@ patent_assignee_tbl &lt;- vroom(
   
 )
 
-class(assignee_tbl)</code></pre>
-<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
-<pre class="r"><code>setDT(assignee_tbl)
+uspc_tbl &lt;- vroom(
+  
+  file = &quot;uspc.tsv&quot;,
+  delim      = &quot;\t&quot;, 
+  col_types  =  list(uuid = col_skip(), subclass_id = col_skip()),
+  na         = c(&quot;&quot;, &quot;NA&quot;, &quot;NULL&quot;)
+  
+)
 
-class(patent_assignee_tbl)</code></pre>
-<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
-<pre class="r"><code>setDT(patent_assignee_tbl)
 
-# 3.0 Data Wranggling
+class(uspc_tbl)
+
+setDT(uspc_tbl)
+
+class(patent_tbl)
+
+setDT(patent_tbl)
+
+class(assignee_tbl)
+
+setDT(assignee_tbl)
+
+class(patent_assignee_tbl)
+
+setDT(patent_assignee_tbl)
+
+## Challenge 3.1
+
+### 3.0 Data Wranggling
 
 patent_assignee_tbl &lt;- patent_assignee_tbl %&gt;% select(patent_id, assignee_id, location_id) %&gt;% rename(pat_id = patent_id,
                                                                                                       id = assignee_id,
@@ -620,28 +670,29 @@ patent_assignee_tbl &lt;- patent_assignee_tbl %&gt;% select(patent_id, assignee_
 
 complete_patent_tbl &lt;- merge(x = patent_assignee_tbl, y = assignee_tbl, by = &quot;id&quot;,all.x = TRUE, all.y = TRUE)
 
+### filtering Critirea
 
-# filtering
+## Categories
 
-# Categories
-
-# 2 US Company or Corporation
-# 4 US individual
-# 6 US Federal government
-# 8 US County Government
-# 9 US State Government
+### 2 US Company or Corporation
+### 4 US individual
+### 6 US Federal government
+### 8 US County Government
+### 9 US State Government
 
 filtered_data &lt;- complete_patent_tbl %&gt;% select(type,organization) %&gt;% filter((type %% 2 == 0)|(type == 9))
 
-unique_values &lt;- filtered_data %&gt;% distinct(organization) %&gt;% view()
-
-num_patents_by_co &lt;- filtered_data %&gt;% group_by(organization) %&gt;% count() %&gt;% arrange(desc(n)) %&gt;% view()
+num_patents_by_co &lt;- filtered_data %&gt;% group_by(organization) %&gt;% count() %&gt;% arrange(desc(n)) 
 
 num_patents_by_co %&gt;% head(n=10)</code></pre>
+<pre class="r"><code>library(readxl)
+
+num_patents_by_comp &lt;- read_csv(&quot;num_patents_by_com.csv&quot;)
+
+num_patents_by_comp </code></pre>
 <pre><code>## # A tibble: 10 x 2
-## # Groups:   organization [10]
 ##    organization                                     n
-##    &lt;chr&gt;                                        &lt;int&gt;
+##    &lt;chr&gt;                                        &lt;dbl&gt;
 ##  1 International Business Machines Corporation 139092
 ##  2 &lt;NA&gt;                                         72951
 ##  3 General Electric Company                     47122
@@ -652,7 +703,92 @@ num_patents_by_co %&gt;% head(n=10)</code></pre>
 ##  8 QUALCOMM Incorporated                        24703
 ##  9 Texas Instruments Incorporated               24182
 ## 10 Xerox Corporation                            23174</code></pre>
-<p>Last compiled: 2020-11-28</p>
+<pre class="r"><code>## Challenge 3.2
+patent_assignee_tbl &lt;- complete_patent_tbl %&gt;% select(id,pat_id,Loc_id,type,organization)%&gt;% rename(id = id,
+                                                                                                    number = pat_id,
+                                                                                                    loc_id = Loc_id,
+                                                                                                    type = type,
+                                                                                                    org = organization)
+
+merged_patent_tbl &lt;- merge(x = patent_tbl, y = patent_assignee_tbl, by = &quot;number&quot;,all.x = TRUE, all.y = TRUE)
+
+
+filtered_patent_tbl &lt;- merged_patent_tbl %&gt;% select(number,country,date,type,org) %&gt;% filter((type %% 2 == 0)|(type == 9))
+
+filtered_patent_tbl &lt;- filtered_patent_tbl %&gt;% select(number,country,date,type,org)  %&gt;% filter(!is.na(date)) 
+
+ru_patent_tbl &lt;- filtered_patent_tbl %&gt;% select(number,country,date,org) %&gt;% separate(col = date,
+                                                                   into = c(&quot;year&quot;,&quot;month&quot;,&quot;day&quot;),
+                                                                   sep = &#39;-&#39;,remove = FALSE)
+ru_patent_tbl &lt;- ru_patent_tbl %&gt;% select(-date)
+
+ru_patent_tbl &lt;- ru_patent_tbl %&gt;% select(number,country,year,org) %&gt;% filter(year == 2019)
+
+patents_by_company_in_2019 &lt;- ru_patent_tbl %&gt;% group_by(org,year) %&gt;% count() %&gt;% arrange(desc(n)) 
+
+patents_by_company_in_2019 %&gt;% head(n=10)</code></pre>
+<pre class="r"><code>patents_by_company_2019 &lt;- read_csv(&quot;patents_by_company_2019.csv&quot;)
+
+patents_by_company_2019 </code></pre>
+<pre><code>## # A tibble: 10 x 3
+##    org                                          year     n
+##    &lt;chr&gt;                                       &lt;dbl&gt; &lt;dbl&gt;
+##  1 International Business Machines Corporation  2019  9265
+##  2 Intel Corporation                            2019  3526
+##  3 Microsoft Technology Licensing, LLC          2019  3106
+##  4 Apple Inc.                                   2019  2817
+##  5 Ford Global Technologies, LLC                2019  2624
+##  6 Amazon Technologies, Inc.                    2019  2533
+##  7 QUALCOMM Incorporated                        2019  2359
+##  8 Google Inc.                                  2019  2290
+##  9 General Electric Company                     2019  1860
+## 10 Hewlett-Packard Development Company, L.P.    2019  1589</code></pre>
+<pre class="r"><code>complete_upatent_tbl &lt;- complete_patent_tbl %&gt;% select(id,pat_id,Loc_id,type,organization) %&gt;% filter(!is.na(pat_id)) %&gt;% arrange(desc(pat_id))
+
+uspc_tbl &lt;- uspc_tbl %&gt;% select(patent_id,mainclass_id,sequence) %&gt;% rename(pat_id = patent_id,
+                                                                            mclass = mainclass_id,
+                                                                            sqc = sequence)
+
+complete_upatent_tbl &lt;- merge(x = complete_upatent_tbl, y = uspc_tbl, by = &quot;pat_id&quot;,all.x = TRUE, all.y = TRUE) %&gt;% filter(!is.na(mclass))
+
+complete_upatent_tbl &lt;- complete_upatent_tbl %&gt;% filter(!is.na(organization))
+
+filtered_patent_tbl &lt;- complete_upatent_tbl %&gt;% group_by(pat_id,organization,mclass) %&gt;% count() %&gt;% arrange(desc(n))
+
+top_10_companies &lt;- filtered_patent_tbl %&gt;% group_by(pat_id,organization) %&gt;% count() %&gt;% arrange(desc(n))
+
+top_10_org &lt;- top_10_companies %&gt;%  group_by(organization) %&gt;% count() %&gt;% arrange(desc(n)) %&gt;% head(n=10)
+
+top_uspto &lt;- merge(x = top_10_org, y = filtered_patent_tbl, by = &quot;organization&quot;,all.x = TRUE, all.y = TRUE)
+
+top_5_uspto &lt;- top_uspto %&gt;% select(organization, n.x, pat_id, mclass) %&gt;% filter(!is.na(n.x)) %&gt;% arrange(desc(mclass))
+
+top_5_uspto &lt;- top_5_uspto %&gt;% group_by(mclass) %&gt;% count() %&gt;% arrange(desc(n))
+
+top_5_uspto %&gt;% head(n = 5) %&gt;% glimpse() 
+
+## filtering Critirea
+
+## Step 1:
+###       a) Trew away the na.rows of organization and mclass at the frist two command lines
+###       b) Counted the number of times a patent was assigned to an organization, considering the mainclass
+###       c) Counted the number of times an organization was awarded a patent
+###       d) Extracted the top ten companies with most patents in top_10_org
+###       e) Filtered (using merge) the top ten companies in the filtered_patent_tbl to get the the mainclass of the top tehn companies
+###       f) Finally, count the number of times mainclasses appears from the top ten companies
+###       h) Got the top five USPTO tech mainclasses</code></pre>
+<pre class="r"><code>top_5_uspto &lt;- read_csv(&quot;top_5_uspto.csv&quot;)
+
+top_5_uspto </code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   mclass     n
+##    &lt;dbl&gt; &lt;dbl&gt;
+## 1    257 29872
+## 2    438 19543
+## 3    358 17228
+## 4    348 16300
+## 5    709 16058</code></pre>
+<p>Last compiled: 2020-11-30</p>
 <p>I’m writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom</p>
 </div>
 </div>
@@ -662,7 +798,7 @@ num_patents_by_co %&gt;% head(n=10)</code></pre>
 <p>So, let’s say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:</p>
 <pre class="r"><code>samples &lt;- rnorm(100, mean=0, sd=1)
 hist(samples)</code></pre>
-<p><img src="journal_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="journal_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You’ll learn that all of these things and more can be customized in each R code block.</p>
 </div>
 
